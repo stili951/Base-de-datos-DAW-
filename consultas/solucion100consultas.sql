@@ -21,6 +21,7 @@ use sakila;
     from language join film using (language_id)
     group by language_id
     order by avg(length) > 110;
+-- Hecho en clase 29/ 10/2026
 -- 5:  Para cada película, muestra cuántas copias hay en el inventario.
 	select film.title , count(inventory.inventory_id) as copias_total
     from film join inventory using(film_id)
@@ -48,3 +49,36 @@ use sakila;
 	select customer.customer_id , sum(payment.amount)
     from payment join customer using(customer_id) 
     group by customer.customer_id;
+-- 11:  Muestra los clientes cuyo importe total pagado es al menos 200.
+	select customer.customer_id , sum(payment.amount)
+    from payment join customer using(customer_id) 
+    group by customer.customer_id
+    having sum(payment.amount) >=200;
+-- 12:  Para cada empleado (staff), muestra el número de pagos que ha procesado.
+	select staff.staff_id , count(payment.payment_id)
+    from staff join payment using(staff_id)
+    group by staff.staff_id;
+-- 13:  Para cada empleado, muestra el importe total procesado.
+	select staff.staff_id , sum(payment.amount)
+    from payment join staff using(staff_id)
+    group by staff.staff_id;
+-- 14:  Para cada tienda, cuenta cuántos artículos de inventario tiene.
+	select store.store_id , count(inventory_id)
+    from store join inventory using(store_id)
+    group by store.store_id;
+-- ejercicios en casa
+-- 15:  Para cada tienda, cuenta cuántos clientes tiene asignados.
+	select store.store_id , count(customer.customer_id)
+    from store join customer using(store_id)
+    group by store.store_id;
+-- 16:  Para cada tienda, cuenta cuántos empleados (staff) tiene asignados.
+	select st.store_id , count(s.staff_id) as empleados_totales
+    from store st join staff s using(store_id)
+    group by st.store_id;
+-- 17:  Para cada dirección (address), cuenta cuántas tiendas hay ubicadas ahí (debería ser 0/1 en datos estándar).
+	select address.address_id , address.address, count(store.store_id)
+    from address join store using(address_id)
+    group by address.address_id;
+-- 18:  Para cada dirección, cuenta cuántos empleados residen en esa dirección.
+-- 19:  Para cada dirección, cuenta cuántos clientes residen ahí.
+-- 20:  Para cada ciudad, cuenta cuántas direcciones hay registradas.
