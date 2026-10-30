@@ -80,5 +80,41 @@ use sakila;
     from address join store using(address_id)
     group by address.address_id;
 -- 18:  Para cada dirección, cuenta cuántos empleados residen en esa dirección.
+	select address.address_id , address.address , count(staff.staff_id)
+    from address join staff using(address_id)
+    group by address.address_id , address.address;
 -- 19:  Para cada dirección, cuenta cuántos clientes residen ahí.
+	select address.address_id , address.address ,count(customer_id)
+    from address join customer using(address_id)
+    group by address.address_id,address.address;
 -- 20:  Para cada ciudad, cuenta cuántas direcciones hay registradas.
+	select city.city_id, city.city ,count(address.address_id) 
+    from city join address using (city_id) 
+    group by city.city_id, city.city ;
+-- 21:  Para cada país, cuenta cuántas ciudades existen.
+	select c.country_id , c.country , count(ci.city_id)
+    from country c join city ci using (country_id)
+    group by c.country_id , c.country;
+-- 22:  Para cada idioma, calcula la duración media de películas y muestra solo los idiomas con media entre 90 y 120 inclusive.
+	select l.language_id ,l.name , avg(f.length)
+    from language l join film f using(language_id)
+    group by l.language_id, l.name
+    having avg(f.length) >= 90 && avg(f.length) <= 120 ;
+-- 23:  Para cada película, cuenta el número de alquileres que se han hecho de cualquiera de sus copias (usando inventario).
+	select f.film_id, f.title ,count(r.inventory_id)
+    from film f join inventory i using(film_id)
+    join rental r using(inventory_id)
+    group by f.film_id , f.title;
+-- 24:  Para cada cliente, cuenta cuántos pagos ha realizado en 2005 (usando el año de payment_date).
+	select c.customer_id , p.payment_date
+    from customer c join payment p using(customer_id)
+    where year(p.payment_date)= 2025
+    order by p.payment_date;
+-- 25:  Para cada película, muestra el promedio de tarifa de alquiler (rental_rate) de las copias existentes (es un promedio redundante pero válido).
+	select *
+    from payment ;
+-- 26:  Para cada actor, muestra la duración media (length) de sus películas.
+-- 27:  Para cada ciudad, cuenta cuántos clientes hay (usando la relación cliente->address->city requiere 3 tablas; aquí contamos direcciones por ciudad).
+-- 28:  Para cada película, cuenta cuántos actores tiene asociados.
+-- 29:  Para cada categoría (por id), cuenta cuántas películas pertenecen a ella (sin nombre de categoría para mantener 2 tablas).
+-- 30:  Para cada tienda, cuenta cuántos alquileres totales se originan en su inventario.
