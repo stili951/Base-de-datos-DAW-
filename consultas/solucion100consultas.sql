@@ -105,16 +105,45 @@ use sakila;
     from film f join inventory i using(film_id)
     join rental r using(inventory_id)
     group by f.film_id , f.title;
+-- hecho el 04-11-2026
 -- 24:  Para cada cliente, cuenta cuántos pagos ha realizado en 2005 (usando el año de payment_date).
-	select c.customer_id , p.payment_date
+	select c.customer_id , first_name , count(p.payment_date) as total_pagos
     from customer c join payment p using(customer_id)
-    where year(p.payment_date)= 2025
-    order by p.payment_date;
+    where year(p.payment_date)= 2005
+    group by c.customer_id
+    order by c.customer_id asc;
 -- 25:  Para cada película, muestra el promedio de tarifa de alquiler (rental_rate) de las copias existentes (es un promedio redundante pero válido).
-	select *
-    from payment ;
+	select film_id , title , avg(rental_rate)
+    from film join inventory using(film_id)
+    group by film_id , title;
 -- 26:  Para cada actor, muestra la duración media (length) de sus películas.
+	select a.actor_id, avg(f.length) as duracion_media
+    from film_actor a join film f using(film_id)
+    group by a.actor_id;	
 -- 27:  Para cada ciudad, cuenta cuántos clientes hay (usando la relación cliente->address->city requiere 3 tablas; aquí contamos direcciones por ciudad).
+	select city_id ,city, count(customer_id)
+    from city join address using(city_id)
+    join customer using(address_id)
+    group by city_id, city 
+    order by city_id asc; 
 -- 28:  Para cada película, cuenta cuántos actores tiene asociados.
+	select film_id ,title, count(actor_id)
+    from film join film_actor using(film_id)
+    group by film_id , title;
 -- 29:  Para cada categoría (por id), cuenta cuántas películas pertenecen a ella (sin nombre de categoría para mantener 2 tablas).
+	select category_id , count(film_id)
+	from film_category join film using(film_id)
+    group by category_id;
 -- 30:  Para cada tienda, cuenta cuántos alquileres totales se originan en su inventario.
+	select store_id , count(inventory_id)
+    from store join inventory using(store_id)
+    join rental using(inventory_id)
+    group by store_id;
+-- ==============================================
+-- SECCIÓN B) 30 CONSULTAS CON JOIN DE 3 TABLAS
+-- ==============================================
+-- 31:  Para cada actor, cuenta cuántas películas tiene y muestra solo los que superan 15 películas.
+	select actor_id , first_name ,last_name , count(film_id) 
+    from actor join film_actor using(actor_id)
+    join film using(film_id)
+    group by actor_id, last_name;
