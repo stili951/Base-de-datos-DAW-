@@ -250,3 +250,131 @@ use sakila;
     from film_actor join film using(film_id)
     join language using(language_id)
     group by language_id , name;
+-- 	Ejercicio hata el 70  , dia 09-11-2026
+-- 51:  Para cada tienda, cuenta cuántos clientes activos (active=1) tiene.
+	select store_id , count(customer_id)
+    from store join customer using(store_id)
+    where active = 1 
+    group by store_id;
+-- 52:  Para cada cliente, cuenta en cuántas categorías distintas ha alquilado (aprox. vía film_category; requiere 4 tablas, aquí contamos películas 2006 por inventario).
+	select customer_id , first_name , last_name , count(distinct category_id) as categorias_distintas
+    from customer join rental using(customer_id) 
+    join inventory using(inventory_id)
+    join film_category using(film_id)
+    where year(rental_date) = 2006
+    group by customer_id , first_name , last_name;
+-- 53:  Para cada empleado, cuenta cuántos clientes diferentes le han pagado.
+	select staff_id ,s.first_name ,s.last_name , count(distinct customer_id) as pago_diferentes
+    from staff s join payment using(staff_id)
+    join customer using(customer_id)
+    group by staff_id , s.first_name, s.last_name ;
+-- 54:  Para cada ciudad, cuenta cuántas películas del año 2006 han sido alquiladas por residentes en esa ciudad.
+	select c.city_id , c.city , count(inventory_id) as peliculas_alquiladas
+    from city c join address using(city_id)
+    join customer using(address_id)
+    join rental using(customer_id)
+    where year(rental_date)=2006
+    group by c.city_id, c.city;
+-- 55:  Para cada categoría, calcula el promedio de replacement_cost de sus películas.
+	select category_id , name , avg(replacement_cost)
+    from category join film_category using(category_id)
+    join film using(film_id)
+    group by category_id , name;
+-- 56:  Para cada tienda, suma los importes cobrados en 2006 (vía empleados de esa tienda).
+	select store_id , sum(amount)
+    from store join staff using(store_id)
+    join payment using(staff_id)
+    where year(payment_date) = 2006
+    group by store_id;
+-- 57:  Para cada actor, cuenta cuántas películas tienen título de más de 12 caracteres.
+	select actor_id , first_name , last_name , count(title)
+    from actor join film_actor using(actor_id)
+    join film using(film_id)
+    where length(title) > 12
+    group by actor_id, first_name , last_name ;
+-- 58:  Para cada ciudad, calcula la suma de pagos de 2005 y filtra las ciudades con total >= 300.
+	select city_id , city, sum(amount)
+    from city join address using(city_id)
+    join customer using(address_id)
+    join payment using(customer_id)
+    where year(payment_date) = 2005 
+    group by city_id , city
+    having sum(amount)=300;
+-- 59:  Para cada categoría, cuenta cuántas películas tienen rating 'PG' o 'PG-13'.
+	select category_id , name , count(film_id)
+    from category join film_category using(category_id)
+    join film using(film_id)
+    where rating in ('PG','PG-13')
+    group by category_id, name;
+-- 60:  Para cada cliente, calcula el total pagado en pagos procesados por el empleado 2.
+	select customer_id , c.first_name , c.last_name , sum(amount)
+    from customer c join payment using(customer_id)
+    join staff using(staff_id)
+    where staff_id = 2
+    group by customer_id , c.first_name ,c.last_name;
+-- ==============================================
+-- SECCIÓN C) 20 CONSULTAS CON JOIN DE 4 TABLAS
+-- ==============================================
+-- 61:  Para cada ciudad, cuenta cuántos clientes hay y muestra solo ciudades con 10 o más clientes.
+	select city_id , city , count(customer_id)
+    from city join address using(city_id)
+    join customer using(address_id)
+    group by city_id, city
+    having count(customer_id) >=10;
+-- 62:  Para cada actor, cuenta cuántos alquileres totales suman todas sus películas.
+	select actor_id , first_name , last_name , count(rental_id) 
+    from actor join film_actor using(actor_id)
+    join inventory using(film_id)
+	join rental using(inventory_id)
+    group by actor_id, first_name , last_name;
+-- 63:  Para cada categoría, suma los importes pagados derivados de películas de esa categoría.
+	select category_id , name , sum(amount) as importes_pagados
+    from category join film_category using(category_id)
+    join inventory using(film_id)
+    join rental using(inventory_id)
+    join payment using(rental_id)
+    group by category_id, name;
+-- 64:  Para cada ciudad, suma los importes pagados por clientes residentes en esa ciudad en 2005.
+	select city_id , city , sum(amount)
+    from city join address using(city_id)
+    join customer using(address_id)
+    join payment using(customer_id)
+    where year(payment_date) = 2005
+    group by city_id , city ;
+-- 65:  Para cada tienda, cuenta cuántos actores distintos aparecen en las películas de su inventario.
+	select store_id , count(distinct actor_id)
+    from store join inventory using(store_id)
+    join film_actor using(film_id)
+    group by store_id;
+-- 66:  Para cada idioma, cuenta cuántos alquileres totales se han hecho de películas en ese idioma.
+	select language_id , name, count(rental_id)
+    from language join film using(language_id)
+    join inventory using(film_id)
+    join rental using(inventory_id)
+    group by language_id , name;
+-- 67:  Para cada cliente, cuenta en cuántos meses distintos de 2005 realizó pagos (meses distintos).
+	select customer_id , first_name , last_name , count(distinct month(payment_date))
+    from customer join payment using(customer_id) 
+    where year(payment_date) = 2005 
+    group by customer_id , first_name, last_name;
+-- 68:  Para cada categoría, calcula la duración media de las películas alquiladas (considerando solo películas alquiladas).
+	select category_id , name, avg(length)
+    from category join film_category using(category_id)
+    join film using(film_id)
+    join inventory using(film_id)
+    join rental using(inventory_id) 
+    group by category_id , name ;
+-- 69:  Para cada país, cuenta cuántos clientes hay (country -> city -> address -> customer).
+	select country_id , country , count(customer_id)
+    from country join city using(country_id)
+    join address using(city_id)
+    join customer using(address_id)
+    group by country_id , country
+    order by country_id asc;
+-- 70:  Para cada país, suma los importes pagados por sus clientes.
+	select country_id , country, sum(amount)
+    from country join city using(country_id)
+    join address using(city_id)
+    join customer using(address_id)
+    join payment using(customer_id)
+    group by country_id, country;
